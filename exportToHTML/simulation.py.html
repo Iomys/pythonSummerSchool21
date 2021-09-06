@@ -1,0 +1,113 @@
+<html>
+<head>
+<title>simulation.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #629755; font-style: italic;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #cc7832;}
+.s3 { color: #6897bb;}
+.s4 { color: #808080;}
+.s5 { color: #6a8759;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+simulation.py</font>
+</center></td></tr></table>
+<pre><span class="s0">&quot;&quot;&quot; 
+Simulation heure par heure prenant en compte la production et la consommation d'énergie 
+ 
+&quot;&quot;&quot;</span>
+<span class="s2">from </span><span class="s1">lib </span><span class="s2">import </span><span class="s1">*</span>
+<span class="s1">cop_froid = </span><span class="s3">64  </span><span class="s4"># cf. calcul Emmanuel</span>
+<span class="s1">isolant = Materiau(nom=</span><span class="s5">&quot;Un isolant&quot;</span><span class="s2">, </span><span class="s1">valeurLambda=</span><span class="s3">0.020</span><span class="s1">)</span>
+<span class="s1">beton = Materiau(nom=</span><span class="s5">&quot;Béton&quot;</span><span class="s2">, </span><span class="s1">valeurLambda=</span><span class="s3">2.4</span><span class="s1">)  </span><span class="s4"># écobati.com</span>
+
+<span class="s1">mur = Mur((isolant</span><span class="s2">, </span><span class="s3">30</span><span class="s1">)</span><span class="s2">, </span><span class="s1">(beton</span><span class="s2">, </span><span class="s3">20</span><span class="s1">))</span>
+<span class="s1">stock = StockageEau(</span><span class="s3">10</span><span class="s2">, </span><span class="s3">20</span><span class="s2">, </span><span class="s3">30</span><span class="s2">, </span><span class="s1">mur)</span>
+<span class="s1">tempChauff = </span><span class="s3">30</span>
+<span class="s1">tempECS = </span><span class="s3">60</span>
+<span class="s1">pac = PAC(cop=</span><span class="s3">5</span><span class="s2">, </span><span class="s1">puissance=</span><span class="s3">140</span><span class="s1">)</span>
+<span class="s1">pacNappe = PAC(cop=</span><span class="s3">4</span><span class="s2">, </span><span class="s1">puissance=</span><span class="s3">140</span><span class="s1">)</span>
+<span class="s1">tempNappe = </span><span class="s3">10</span>
+
+<span class="s2">def </span><span class="s1">sim(heure</span><span class="s2">, </span><span class="s1">prodPV</span><span class="s2">, </span><span class="s1">prodHydro</span><span class="s2">, </span><span class="s1">prodSolTh</span><span class="s2">, </span><span class="s1">consoChal</span><span class="s2">, </span><span class="s1">consoFroid</span><span class="s2">, </span><span class="s1">consoECS</span><span class="s2">, </span><span class="s1">consoElec):</span>
+    <span class="s0">&quot;&quot;&quot; 
+    La fonction *sim* est lancée heure par heure pour une année entière. 
+    Elle prend en compte l'énergie produite, et les demandes en électricité et chauffage/refroidissement. 
+    Tout est fait avec des énergies en kWh et non des puissance. 
+ 
+    :param heure: Heure de la simulation (1 à 8760) 
+    :param prodPV: Production en kWh de solaire photovoltaïque durant l'heure de simulation 
+    :param prodHydro: Production en kWh d'électricité hydraulique durant l'heure de simulation 
+    :param prodSolTh: Production en kWh de solaire thermique 
+    :param consoElec: Consommation en kWh d'électricité (éclairage, appareils...) 
+    :param consoChal: Consommation en chaleur 
+    :param consoFroid: Consommation en froid 
+    :param consoECS: Consommation en eau chaude sanitaire 
+    :return: bilanElec, consoElec, stock.temp 
+    &quot;&quot;&quot;</span>
+    <span class="s1">log.hour = heure </span><span class="s4"># Utile pour le logging des infos</span>
+
+
+
+    <span class="s1">bilanElec = </span><span class="s3">0  </span><span class="s4"># Le bilan est positif s'il y a une exportation d'électricité ou négatif en cas d'importation</span>
+    <span class="s1">prodElec = prodPV + prodHydro</span>
+
+    <span class="s4"># Consommation énergétique du quartier</span>
+    <span class="s1">prodElec -= consoElec</span>
+
+    <span class="s4"># Chauffage du stock avec les PV</span>
+    <span class="s1">stock.entree(prodSolTh)</span>
+
+    <span class="s4"># Chauffage du bâtiment avec la PAC qui puisse dans le stock d'anérgie</span>
+    <span class="s2">if </span><span class="s1">stock.temp &gt;= tempChauff:    </span><span class="s4"># Si le stock est plus chaud que le température, pas besoin de la PAC</span>
+        <span class="s1">stock.sortie(consoChal)     </span><span class="s4"># TODO : prendre en compte l'efficacité de l'échangeur de chaleur</span>
+    <span class="s2">else</span><span class="s1">:                           </span><span class="s4"># Stock pas assez chaud -&gt; utilisation de la PAC</span>
+        <span class="s1">enPAC = pac.pomper(demandeEnergie=consoChal</span><span class="s2">, </span><span class="s1">tempChaud=tempChauff</span><span class="s2">, </span><span class="s1">tempFroid=stock.temp)</span>
+        <span class="s2">try</span><span class="s1">:</span>
+            <span class="s1">stock.sortie(enPAC[</span><span class="s5">&quot;froid&quot;</span><span class="s1">])</span>
+        <span class="s2">except </span><span class="s1">TemperatureTooLowError:</span>
+            <span class="s1">print(</span><span class="s5">&quot;Température trop faible pour chauffer le chauffage&quot;</span><span class="s1">)</span>
+        <span class="s2">finally</span><span class="s1">:</span>
+            <span class="s1">prodElec -= enPAC[</span><span class="s5">&quot;elec&quot;</span><span class="s1">]</span>
+    <span class="s1">copChauff = pac.cop</span>
+    <span class="s4"># Refroidissement avec la nappe phréatique</span>
+    <span class="s1">prodElec -= consoFroid / cop_froid  </span><span class="s4"># Seulement l'énergie de la pompe de circulation</span>
+
+    <span class="s4"># Chauffage de l'ECS avec la PAC qui puise dans le stock d'anergie</span>
+
+    <span class="s2">if </span><span class="s1">stock.temp &gt;= tempECS:    </span><span class="s4"># Si le stock est plus chaud que le température, pas besoin de la PAC</span>
+        <span class="s1">stock.sortie(consoECS)</span>
+    <span class="s2">else</span><span class="s1">:                        </span><span class="s4"># Stock pas assez chaud -&gt; utilisation de la PAC</span>
+        <span class="s1">enPAC = pac.pomper(demandeEnergie=consoECS</span><span class="s2">, </span><span class="s1">tempChaud=tempECS</span><span class="s2">, </span><span class="s1">tempFroid=stock.temp)</span>
+        <span class="s2">try</span><span class="s1">:</span>
+            <span class="s1">stock.sortie(enPAC[</span><span class="s5">&quot;froid&quot;</span><span class="s1">])</span>
+        <span class="s2">except </span><span class="s1">TemperatureTooLowError:</span>
+            <span class="s1">print(</span><span class="s5">&quot;Température du stock trop faible pour chauffer l'ECS&quot;</span><span class="s1">)</span>
+        <span class="s2">else</span><span class="s1">:</span>
+            <span class="s1">prodElec -= enPAC[</span><span class="s5">&quot;elec&quot;</span><span class="s1">]</span>
+
+    <span class="s1">copECS = pac.cop</span>
+    <span class="s4"># TODO Stockage électrique</span>
+    <span class="s4"># Chauffage du stock depuis la nappe phréatique avec l'électricité restante</span>
+    <span class="s2">if </span><span class="s1">prodElec &gt; </span><span class="s3">0</span><span class="s1">:</span>
+        <span class="s1">enPAC = pacNappe.pomperEnRestante(prodElec</span><span class="s2">, </span><span class="s1">tempChaud=stock.temp+</span><span class="s3">20</span><span class="s2">, </span><span class="s1">tempFroid=tempNappe)</span>
+        <span class="s2">try</span><span class="s1">:</span>
+            <span class="s1">stock.entree(enPAC[</span><span class="s5">&quot;chaud&quot;</span><span class="s1">])</span>
+        <span class="s2">except </span><span class="s1">TemperatureTooHighError:  </span><span class="s4"># Si le stockage est trop chaud, exportation de l'électricité sur le réseau</span>
+            <span class="s1">bilanElec = prodElec</span>
+    <span class="s2">else</span><span class="s1">:</span>
+        <span class="s1">bilanElec = prodElec</span>
+
+    <span class="s2">return </span><span class="s1">[heure</span><span class="s2">, </span><span class="s1">bilanElec</span><span class="s2">, </span><span class="s1">stock.energie</span><span class="s2">, </span><span class="s1">stock.temp</span><span class="s2">, </span><span class="s1">copChauff</span><span class="s2">, </span><span class="s1">copECS]</span>
+
+
+
+
+</pre>
+</body>
+</html>

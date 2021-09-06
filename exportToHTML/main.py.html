@@ -1,0 +1,76 @@
+<html>
+<head>
+<title>main.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #808080;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #cc7832;}
+.s3 { color: #6897bb;}
+.s4 { color: #6a8759;}
+.ls0 { height: 1px; border-width: 0; color: #4d4d4d; background-color:#4d4d4d}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+main.py</font>
+</center></td></tr></table>
+<pre><span class="s0">#%%</span>
+<span class="s2">from </span><span class="s1">lib </span><span class="s2">import </span><span class="s1">log</span>
+<span class="s2">from </span><span class="s1">simulation </span><span class="s2">import </span><span class="s1">sim</span>
+<span class="s2">import </span><span class="s1">numpy </span><span class="s2">as </span><span class="s1">np</span>
+<span class="s2">import </span><span class="s1">matplotlib.pyplot </span><span class="s2">as </span><span class="s1">plt</span><hr class="ls0"><span class="s0">#%%</span>
+
+<span class="s0">## PARAMS</span>
+<span class="s1">numero_sim = </span><span class="s3">0</span>
+<span class="s1">log.sim_number= numero_sim</span>
+<span class="s1">path = </span><span class="s4">f&quot;data/sims/sim</span><span class="s2">{</span><span class="s1">numero_sim</span><span class="s2">}</span><span class="s4">&quot;</span>
+<span class="s1">log.file_path = </span><span class="s4">f&quot;</span><span class="s2">{</span><span class="s1">path</span><span class="s2">}</span><span class="s4">/log.txt&quot;</span>
+<span class="s1">input_filename = </span><span class="s4">f&quot;</span><span class="s2">{</span><span class="s1">path</span><span class="s2">}</span><span class="s4">/input_data.csv&quot;</span>
+<span class="s1">data = np.loadtxt(input_filename</span><span class="s2">, </span><span class="s1">delimiter=</span><span class="s4">&quot;;&quot;</span><span class="s2">, </span><span class="s1">comments=</span><span class="s4">&quot;#&quot;</span><span class="s2">, </span><span class="s1">skiprows=</span><span class="s3">1</span><span class="s1">)</span>
+<span class="s0">#print(data)</span>
+<hr class="ls0"><span class="s0">#%%</span>
+<span class="s0"># Equivalence des colonnes dans le csv:</span>
+<span class="s1">COLS_EQ = {</span>
+    <span class="s4">&quot;heure&quot;</span><span class="s1">: </span><span class="s3">0</span><span class="s2">,</span>
+    <span class="s4">&quot;prodPV&quot;</span><span class="s1">: </span><span class="s3">1</span><span class="s2">,</span>
+    <span class="s4">&quot;prodHydro&quot;</span><span class="s1">: </span><span class="s3">2</span><span class="s2">,</span>
+    <span class="s4">&quot;prodSolTh&quot;</span><span class="s1">: </span><span class="s3">3</span><span class="s2">,</span>
+    <span class="s4">&quot;consChal&quot;</span><span class="s1">: </span><span class="s3">4</span><span class="s2">,</span>
+    <span class="s4">&quot;consECS&quot;</span><span class="s1">: </span><span class="s3">5</span><span class="s2">,</span>
+    <span class="s4">&quot;consFroid&quot;</span><span class="s1">: </span><span class="s3">6</span><span class="s2">,</span>
+    <span class="s4">&quot;consElec&quot;</span><span class="s1">: </span><span class="s3">7</span><span class="s2">,</span>
+<span class="s1">}</span>
+<span class="s1">results = np.empty((len(data)</span><span class="s2">, </span><span class="s3">6</span><span class="s1">))</span>
+<span class="s2">for </span><span class="s1">line </span><span class="s2">in </span><span class="s1">data:</span>
+    <span class="s0">#sim_results = sim(heure=1, prodPV=0, prodHydro=0, prodSolTh=100, consoChal=0,</span>
+    <span class="s0">#              consoFroid=0, consoECS=0, consoElec=0)</span>
+    <span class="s0">#sim_results = sim(line[0],line[1],line[2],line[3],line[4],line[5],line[6],line[7])</span>
+    <span class="s1">sim_results = sim(heure=line[COLS_EQ[</span><span class="s4">&quot;heure&quot;</span><span class="s1">]]</span><span class="s2">, </span><span class="s1">prodHydro=line[COLS_EQ[</span><span class="s4">&quot;prodHydro&quot;</span><span class="s1">]]</span><span class="s2">, </span><span class="s1">prodPV=line[COLS_EQ[</span><span class="s4">&quot;prodPV&quot;</span><span class="s1">]]</span><span class="s2">, </span><span class="s1">prodSolTh=line[COLS_EQ[</span><span class="s4">&quot;prodSolTh&quot;</span><span class="s1">]]</span><span class="s2">,</span>
+        <span class="s1">consoChal=line[COLS_EQ[</span><span class="s4">&quot;consChal&quot;</span><span class="s1">]]</span><span class="s2">, </span><span class="s1">consoECS=line[COLS_EQ[</span><span class="s4">&quot;consECS&quot;</span><span class="s1">]]</span><span class="s2">, </span><span class="s1">consoFroid=line[COLS_EQ[</span><span class="s4">&quot;consFroid&quot;</span><span class="s1">]]</span><span class="s2">,</span>
+        <span class="s1">consoElec=line[COLS_EQ[</span><span class="s4">&quot;consElec&quot;</span><span class="s1">]])</span>
+    <span class="s1">results[int(line[</span><span class="s3">0</span><span class="s1">])-</span><span class="s3">1</span><span class="s1">] = sim_results</span>
+
+<span class="s1">exportfile = open(</span><span class="s4">f&quot;</span><span class="s2">{</span><span class="s1">path</span><span class="s2">}</span><span class="s4">/results.csv&quot;</span><span class="s2">, </span><span class="s4">&quot;w&quot;</span><span class="s1">)</span>
+<span class="s1">np.savetxt(exportfile</span><span class="s2">, </span><span class="s1">comments=</span><span class="s4">&quot;&quot;</span><span class="s2">, </span><span class="s1">fmt=</span><span class="s4">&quot;%f&quot;</span><span class="s2">, </span><span class="s1">X=results</span><span class="s2">, </span><span class="s1">delimiter=</span><span class="s4">&quot;;&quot;</span><span class="s2">, </span><span class="s1">newline=</span><span class="s4">&quot;</span><span class="s2">\n</span><span class="s4">&quot;</span><span class="s2">, </span><span class="s1">header=</span><span class="s4">&quot;Heure; Bilan [kWh]; Stockage [kWh]; Température du stock [°C]; COP chauffage; COP ECS&quot;</span><span class="s1">)</span>
+<span class="s1">exportfile.close()</span>
+<span class="s1">fig</span><span class="s2">, </span><span class="s1">ax1 = plt.subplots()</span>
+
+<span class="s1">ax2 = ax1.twinx()</span>
+
+<span class="s1">ax2.plot(results[:</span><span class="s2">, </span><span class="s3">0</span><span class="s1">]</span><span class="s2">, </span><span class="s1">results[:</span><span class="s2">, </span><span class="s3">4</span><span class="s1">])  </span><span class="s0"># cop de la PAC de chauffage</span>
+
+<span class="s1">ax2.plot(results[:</span><span class="s2">, </span><span class="s3">0</span><span class="s1">]</span><span class="s2">, </span><span class="s1">results[:</span><span class="s2">, </span><span class="s3">5</span><span class="s1">])  </span><span class="s0"># cop de la PAC pour l'ECS</span>
+<span class="s1">ax1.plot(results[:</span><span class="s2">, </span><span class="s3">0</span><span class="s1">]</span><span class="s2">, </span><span class="s1">results[:</span><span class="s2">, </span><span class="s3">2</span><span class="s1">])  </span><span class="s0"># bilan énergie</span>
+<span class="s1">ax1.plot(results[:</span><span class="s2">, </span><span class="s3">0</span><span class="s1">]</span><span class="s2">, </span><span class="s1">results[:</span><span class="s2">, </span><span class="s3">3</span><span class="s1">])  </span><span class="s0"># énergie dans le stock</span>
+<span class="s1">ax1.set_ylabel(</span><span class="s4">&quot;Energie [kWh]&quot;</span><span class="s1">)</span>
+<span class="s1">ax2.set_ylabel(</span><span class="s4">&quot;COP des PAC&quot;</span><span class="s1">)</span>
+<span class="s1">ax1.set_xlabel(</span><span class="s4">&quot;Heures de l'année&quot;</span><span class="s1">)</span>
+<span class="s1">fig.legend([</span><span class="s4">&quot;PAC chauffage&quot;</span><span class="s2">, </span><span class="s4">&quot;PAC ECS&quot;</span><span class="s2">, </span><span class="s4">&quot;Bilan énergie&quot;</span><span class="s2">, </span><span class="s4">&quot;Energie stockée&quot;</span><span class="s1">])</span>
+<span class="s1">plt.show()</span>
+
+</pre>
+</body>
+</html>

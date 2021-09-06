@@ -1,0 +1,40 @@
+<html>
+<head>
+<title>graph_cop.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6897bb;}
+.s3 { color: #6a8759;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+graph_cop.py</font>
+</center></td></tr></table>
+<pre><span class="s0">from </span><span class="s1">lib </span><span class="s0">import </span><span class="s1">PAC</span>
+<span class="s0">import </span><span class="s1">matplotlib.pyplot </span><span class="s0">as </span><span class="s1">plt</span>
+<span class="s0">import </span><span class="s1">numpy </span><span class="s0">as </span><span class="s1">np</span>
+
+<span class="s1">pac = PAC(cop=</span><span class="s2">3</span><span class="s0">, </span><span class="s1">puissance=</span><span class="s2">4</span><span class="s0">, </span><span class="s1">carnotFactor=</span><span class="s2">2</span><span class="s1">)</span>
+
+<span class="s1">tab_cop = np.zeros((</span><span class="s2">3</span><span class="s0">, </span><span class="s2">60</span><span class="s1">))</span>
+<span class="s1">tab_cop[</span><span class="s2">0</span><span class="s1">] = np.linspace(-</span><span class="s2">5</span><span class="s0">, </span><span class="s2">25</span><span class="s0">, </span><span class="s2">60</span><span class="s1">)</span>
+
+<span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">range(</span><span class="s2">0</span><span class="s0">,</span><span class="s2">60</span><span class="s1">):</span>
+    <span class="s1">tab_cop[</span><span class="s2">1</span><span class="s1">][i] = pac.calculer_rendement(tempFroid=tab_cop[</span><span class="s2">0</span><span class="s1">][i]</span><span class="s0">, </span><span class="s1">tempChaud=</span><span class="s2">35</span><span class="s1">)</span>
+    <span class="s1">tab_cop[</span><span class="s2">2</span><span class="s1">][i] = pac.calculer_rendement(tempFroid=tab_cop[</span><span class="s2">0</span><span class="s1">][i]</span><span class="s0">, </span><span class="s1">tempChaud=</span><span class="s2">55</span><span class="s1">)</span>
+
+<span class="s1">plt.plot(tab_cop[</span><span class="s2">0</span><span class="s1">]</span><span class="s0">, </span><span class="s1">tab_cop[</span><span class="s2">1</span><span class="s1">]</span><span class="s0">, </span><span class="s1">tab_cop[</span><span class="s2">0</span><span class="s1">]</span><span class="s0">, </span><span class="s1">tab_cop[</span><span class="s2">2</span><span class="s1">])</span>
+<span class="s1">plt.legend([</span><span class="s3">&quot;PAC chauffage&quot;</span><span class="s0">, </span><span class="s3">&quot;PAC ECS&quot;</span><span class="s1">])</span>
+<span class="s1">plt.grid()</span>
+<span class="s1">plt.ylim(</span><span class="s2">0</span><span class="s1">)</span>
+<span class="s1">plt.ylabel(</span><span class="s3">&quot;Coefficient de performance&quot;</span><span class="s1">)</span>
+<span class="s1">plt.xlabel(</span><span class="s3">&quot;Température [°C]&quot;</span><span class="s1">)</span>
+<span class="s1">plt.savefig(</span><span class="s3">&quot;plots/cop_selon_carnot.svg&quot;</span><span class="s1">)</span>
+</pre>
+</body>
+</html>

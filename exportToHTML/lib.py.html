@@ -1,0 +1,193 @@
+<html>
+<head>
+<title>lib.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6897bb;}
+.s3 { color: #6a8759;}
+.s4 { color: #629755; font-style: italic;}
+.s5 { color: #808080;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+lib.py</font>
+</center></td></tr></table>
+<pre><span class="s0">class </span><span class="s1">TemperatureTooLowError(Exception):</span>
+    <span class="s0">pass</span>
+
+
+<span class="s0">class </span><span class="s1">TemperatureTooHighError(Exception):</span>
+    <span class="s0">pass</span>
+
+<span class="s0">class </span><span class="s1">Logger:</span>
+    <span class="s1">sim_number = </span><span class="s2">0</span>
+    <span class="s1">hour = </span><span class="s2">0</span>
+    <span class="s1">file_path = </span><span class="s3">&quot;&quot;</span>
+
+    <span class="s0">def </span><span class="s1">print(self</span><span class="s0">, </span><span class="s1">title </span><span class="s0">,</span><span class="s1">message) :</span>
+        <span class="s0">with </span><span class="s1">open(self.file_path</span><span class="s0">, </span><span class="s3">'a'</span><span class="s1">) </span><span class="s0">as </span><span class="s1">file :</span>
+            <span class="s1">file.write(</span><span class="s3">f&quot;</span><span class="s0">{</span><span class="s1">self.sim_number</span><span class="s0">} </span><span class="s3">| </span><span class="s0">{</span><span class="s1">self.hour</span><span class="s0">} </span><span class="s3">| </span><span class="s0">{</span><span class="s1">title</span><span class="s0">} </span><span class="s3">: </span><span class="s0">{</span><span class="s1">message</span><span class="s0">}</span><span class="s3">&quot;</span><span class="s1">)</span>
+
+<span class="s1">log = Logger()</span>
+<span class="s0">class </span><span class="s1">Batiment:</span>
+    <span class="s4">&quot;&quot;&quot; 
+    Classe de bâtiment basique (pavé) 
+        1 seul type d'affectation : habitat collectif 
+        A configurer : largeur, hauteur, longueur, étages 
+        Facultatif : nombre d'habitants et d'appartements 
+    &quot;&quot;&quot;</span>
+    <span class="s0">def </span><span class="s1">__init__(self</span><span class="s0">, </span><span class="s1">largeur</span><span class="s0">, </span><span class="s1">hauteur</span><span class="s0">, </span><span class="s1">longueur</span><span class="s0">, </span><span class="s1">etages</span><span class="s0">, </span><span class="s1">habitants=</span><span class="s0">None, </span><span class="s1">appartements=</span><span class="s0">None, </span><span class="s1">sousSol=</span><span class="s0">True</span><span class="s1">):</span>
+        <span class="s1">self.largeur = largeur</span>
+        <span class="s1">self.hauteur = hauteur</span>
+        <span class="s1">self.longueur = longueur</span>
+        <span class="s1">self.etages = etages</span>
+        <span class="s1">self.habitants = habitants</span>
+        <span class="s1">self.appartements = appartements</span>
+
+        <span class="s1">self.SRE = largeur * longueur * etages  </span><span class="s5"># TODO faut-il diminuer la surface pour prendre en compte les couloirs</span>
+        <span class="s1">self.Ath = </span><span class="s2">2</span><span class="s1">*largeur*hauteur + </span><span class="s2">2 </span><span class="s1">* longueur * hauteur + longueur*largeur * (</span><span class="s2">1.5 </span><span class="s0">if </span><span class="s1">sousSol </span><span class="s0">else </span><span class="s2">1.8</span><span class="s1">)</span>
+        <span class="s1">self.fact_forme = self.Ath/self.SRE</span>
+        <span class="s5"># Besoins de chauffage limites</span>
+
+
+<span class="s0">class </span><span class="s1">Materiau:</span>
+    <span class="s0">def </span><span class="s1">__init__(self</span><span class="s0">, </span><span class="s1">nom</span><span class="s0">, </span><span class="s1">valeurLambda=</span><span class="s0">None, </span><span class="s1">capaciteCalorifique=</span><span class="s0">None</span><span class="s1">):</span>
+        <span class="s1">self.nom = nom</span>
+        <span class="s1">self.valeurLambda = valeurLambda</span>
+        <span class="s1">self.capaciteCalorifique = capaciteCalorifique</span>
+
+
+<span class="s0">class </span><span class="s1">Mur:</span>
+    <span class="s4">&quot;&quot;&quot; 
+    :param Rentrer un tuple contenant le matériau et l'épaisseur (en cm) 
+    Exemple : (laineVerre030, 20) 
+    &quot;&quot;&quot;</span>
+    <span class="s1">materiaux = []</span>
+    <span class="s1">epaisseurs = []</span>
+
+    <span class="s0">def </span><span class="s1">__init__(self</span><span class="s0">, </span><span class="s1">*args: tuple):</span>
+        <span class="s0">for </span><span class="s1">arg </span><span class="s0">in </span><span class="s1">args:</span>
+            <span class="s1">self.materiaux.append(arg[</span><span class="s2">0</span><span class="s1">])</span>
+            <span class="s1">self.epaisseurs.append(arg[</span><span class="s2">1</span><span class="s1">])</span>
+
+            <span class="s1">self.epaisseur = sum(self.epaisseurs)</span>
+        <span class="s5"># Calcul de U (en passant par R)</span>
+        <span class="s1">Rth = </span><span class="s2">0</span>
+        <span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">range(len(self.materiaux)):</span>
+            <span class="s1">Rth += self.epaisseurs[i]/</span><span class="s2">100 </span><span class="s1">/ self.materiaux[i].valeurLambda</span>
+
+        <span class="s1">self.valeurU = </span><span class="s2">1</span><span class="s1">/Rth</span>
+
+
+<span class="s0">class </span><span class="s1">StockageEau:</span>
+    <span class="s0">def </span><span class="s1">__init__(self</span><span class="s0">, </span><span class="s1">hauteur</span><span class="s0">, </span><span class="s1">longueur</span><span class="s0">, </span><span class="s1">largeur</span><span class="s0">, </span><span class="s1">mur):</span>
+        <span class="s1">self.mur = mur</span>
+        <span class="s1">self.largeur = largeur</span>
+        <span class="s1">self.longueur = longueur</span>
+        <span class="s1">self.hauteur = hauteur</span>
+        <span class="s1">self.volume = longueur*hauteur*largeur</span>
+
+        <span class="s5"># Calcul de la masse</span>
+        <span class="s1">self.masseVolumique = </span><span class="s2">998  </span><span class="s5"># kg/m³</span>
+        <span class="s1">self.masse = largeur * longueur * hauteur * self.masseVolumique </span><span class="s5"># kg</span>
+
+        <span class="s5"># Calcul de la capacité thermique</span>
+        <span class="s1">self.tempMin = </span><span class="s2">14</span>
+        <span class="s1">self.temp = self.tempMin </span><span class="s5"># Température de départ pour la simulation</span>
+        <span class="s1">self.tempMax = </span><span class="s2">95</span>
+        <span class="s1">deltaT = self.tempMax - self.tempMin</span>
+        <span class="s1">self.capaciteCalorifique = </span><span class="s2">4180  </span><span class="s5"># Capacité calorifique massique (J/kg·K)</span>
+        <span class="s1">self.capaciteThermique = self.masse * deltaT * self.capaciteCalorifique / </span><span class="s2">3.6e6</span>
+
+        <span class="s5"># Calcul des échanges de chaleur</span>
+
+    <span class="s0">def </span><span class="s1">entree(self</span><span class="s0">, </span><span class="s1">energie):</span>
+        <span class="s0">if </span><span class="s1">self.temp &lt; self.tempMax:</span>
+            <span class="s5"># L'énergie injectée est transformée en température.</span>
+            <span class="s1">energieJoules = energie * </span><span class="s2">3.6e+6</span>
+            <span class="s1">deltaT = energieJoules / (self.masse * self.capaciteCalorifique)</span>
+            <span class="s1">self.temp += deltaT</span>
+        <span class="s0">else</span><span class="s1">:</span>
+            <span class="s0">raise </span><span class="s1">TemperatureTooHighError(</span><span class="s3">f&quot;La température </span><span class="s0">{</span><span class="s1">self.temp</span><span class="s0">} </span><span class="s3">est trop élevée (TempMax : </span><span class="s0">{</span><span class="s1">self.tempMax</span><span class="s0">}</span><span class="s3">)&quot;</span><span class="s1">)</span>
+
+    <span class="s0">def </span><span class="s1">sortie(self</span><span class="s0">, </span><span class="s1">energie):</span>
+        <span class="s0">if </span><span class="s1">self.temp &gt; self.tempMin:</span>
+            <span class="s5"># L'énergie injectée est transformée en température.</span>
+            <span class="s1">energieJoules = energie * </span><span class="s2">3.6e+6</span>
+            <span class="s1">deltaT = energieJoules / (self.masse * self.capaciteCalorifique)</span>
+            <span class="s1">self.temp -= deltaT</span>
+        <span class="s0">else</span><span class="s1">:</span>
+            <span class="s0">raise </span><span class="s1">TemperatureTooLowError(</span><span class="s3">f&quot;La température </span><span class="s0">{</span><span class="s1">self.temp</span><span class="s0">} </span><span class="s3">est trop faible (TempMin : </span><span class="s0">{</span><span class="s1">self.tempMin</span><span class="s0">}</span><span class="s3">)&quot;</span><span class="s1">)</span>
+
+    <span class="s0">def </span><span class="s1">pertes_horaires(self</span><span class="s0">, </span><span class="s1">tempExt):</span>
+        <span class="s4">&quot;&quot;&quot; 
+        Calcul des pertes horaires en fonction de la température externe 
+        # TODO : ajouter les pertes horaires du système de stockage. 
+        :param tempExt: 
+        :return: 
+        &quot;&quot;&quot;</span>
+    <span class="s1">@property</span>
+    <span class="s0">def </span><span class="s1">energie(self):</span>
+        <span class="s4">&quot;&quot;&quot; 
+        Calcul l'énergie stockée dans le stock 
+        :return: 
+        &quot;&quot;&quot;</span>
+        <span class="s0">return </span><span class="s1">(self.temp - self.tempMin) * self.capaciteCalorifique * self.masse / </span><span class="s2">3.6e6</span>
+
+
+<span class="s0">class </span><span class="s1">PAC:</span>
+    <span class="s0">def </span><span class="s1">__init__(self</span><span class="s0">, </span><span class="s1">cop</span><span class="s0">, </span><span class="s1">puissance</span><span class="s0">, </span><span class="s1">carnotFactor=</span><span class="s2">2</span><span class="s1">):</span>
+        <span class="s1">self.puissance = puissance</span>
+        <span class="s1">self.cop = cop</span>
+        <span class="s1">self.carnotFactor = carnotFactor  </span><span class="s5"># Chiffre à diviser pour obtenir le rendement de Carnot</span>
+
+    <span class="s0">def </span><span class="s1">calculer_rendement(self</span><span class="s0">, </span><span class="s1">tempChaud</span><span class="s0">, </span><span class="s1">tempFroid):</span>
+        <span class="s4">&quot;&quot;&quot; 
+ 
+        :param tempChaud: Température de l'eau chaude (en °C) 
+        :param tempFroid: Température de la source froide 
+        :return: Coefficient de performance de la PAC 
+        &quot;&quot;&quot;</span>
+        <span class="s1">zero_absolu = </span><span class="s2">273.15</span>
+        <span class="s1">tempChaud += zero_absolu </span><span class="s5"># Conversion Degrés en Kelvin</span>
+        <span class="s1">tempFroid += zero_absolu</span>
+        <span class="s1">cop = tempChaud/(tempChaud-tempFroid)  </span><span class="s5"># Calculs du rendement de Carnot</span>
+        <span class="s1">cop /= self.carnotFactor  </span><span class="s5"># Rendement</span>
+        <span class="s1">self.cop = cop</span>
+        <span class="s0">return </span><span class="s1">cop</span>
+
+    <span class="s0">def </span><span class="s1">pomper(self</span><span class="s0">, </span><span class="s1">demandeEnergie</span><span class="s0">, </span><span class="s1">tempFroid</span><span class="s0">, </span><span class="s1">tempChaud):</span>
+        <span class="s4">&quot;&quot;&quot; 
+        Pompe l'énergie quelque part (ça peut être la nappe ou le stock d'anérgie). 
+        Pompe seulement une certaine quantité d'énergie thermique demandée. 
+        :param demandeEnergie: 
+        :param tempChaud: Température de l'eau chaude (en °C) 
+        :param tempFroid: Température de la source froide 
+        :return: Dictionnaire avec l'énergie demandée à la source froide (&quot;froid&quot;) et l'énergie électrique nécessaire 
+        (&quot;elec&quot;) 
+        &quot;&quot;&quot;</span>
+        <span class="s1">cop = self.calculer_rendement(tempChaud=tempChaud</span><span class="s0">, </span><span class="s1">tempFroid=tempFroid)</span>
+        <span class="s5">#  Source : https://fr.wikipedia.org/wiki/Coefficient_de_performance</span>
+        <span class="s1">demandeFroid = (</span><span class="s2">1</span><span class="s1">-</span><span class="s2">1</span><span class="s1">/cop) * demandeEnergie  </span><span class="s5"># Demande en énergie de la source froide</span>
+        <span class="s1">demandeElec = </span><span class="s2">1</span><span class="s1">/cop * demandeEnergie</span>
+        <span class="s0">return </span><span class="s1">{</span><span class="s3">&quot;froid&quot;</span><span class="s1">: demandeFroid</span><span class="s0">, </span><span class="s3">&quot;elec&quot;</span><span class="s1">: demandeElec}  </span><span class="s5"># Demande en énergie électrique</span>
+
+    <span class="s0">def </span><span class="s1">pomperEnRestante(self</span><span class="s0">, </span><span class="s1">energieElec</span><span class="s0">, </span><span class="s1">tempFroid</span><span class="s0">, </span><span class="s1">tempChaud):</span>
+        <span class="s4">&quot;&quot;&quot; 
+        Permet de pomper en fournissant une certaine quantité d'énergie électrique 
+        Fonction utilisée principalement pour stocker l'énergie 
+        :param energieElec: Energie électrique fournie 
+        :param tempChaud: Température de l'eau chaude (en °C) 
+        :param tempFroid: Température de la source froide 
+        :return: Dictionnaire avec la chaleur produire (&quot;chaud&quot;) et l'énergie prélevée à la source froide (&quot;froid&quot;) 
+        &quot;&quot;&quot;</span>
+        <span class="s1">cop = self.calculer_rendement(tempChaud=tempChaud</span><span class="s0">, </span><span class="s1">tempFroid=tempFroid)</span>
+        <span class="s0">return </span><span class="s1">{</span><span class="s3">&quot;chaud&quot;</span><span class="s1">: energieElec*cop</span><span class="s0">, </span><span class="s3">&quot;froid&quot;</span><span class="s1">: energieElec*(cop-</span><span class="s2">1</span><span class="s1">)}</span>
+</pre>
+</body>
+</html>
