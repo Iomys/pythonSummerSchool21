@@ -58,7 +58,7 @@ def sim(heure, prodPV, prodHydro, prodSolTh, consoChal, consoFroid, consoECS, co
 
     # Chauffage du bâtiment avec la PAC qui puisse dans le stock d'anérgie
     if stock.temp >= tempChauff:    # Si le stock est plus chaud que le température, pas besoin de la PAC
-        stock.sortie(consoChal)     # TODO : prendre en compte l'efficacité de l'échangeur de chaleur
+        stock.sortie(consoChal)     #
     else:                           # Stock pas assez chaud -> utilisation de la PAC
         enPAC = pac.pomper(demandeEnergie=consoChal, tempChaud=tempChauff, tempFroid=stock.temp)
         try:
@@ -85,7 +85,7 @@ def sim(heure, prodPV, prodHydro, prodSolTh, consoChal, consoFroid, consoECS, co
             prodElec -= enPAC["elec"]
 
     copECS = pac.cop
-    # TODO Stockage électrique
+
     if prodElec > 0:  # On stocke de l'électricité excédente dans les batteries
         prodElec -= battery.entree(prodElec)
     else:
