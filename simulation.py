@@ -8,7 +8,8 @@ isolant = Materiau(nom="Un isolant", valeurLambda=0.020)
 beton = Materiau(nom="Béton", valeurLambda=2.4)  # écobati.com
 
 mur = Mur((isolant, 30), (beton, 20))
-stock = StockageEau(10, 20, 30, mur)
+battery = StockageElectrique(500)
+stock = StockageEau(5, 70, 15, mur, temp_depart=75)
 tempChauff = 30
 tempECS = 60
 pac = PAC(cop=5, puissance=140)
@@ -32,7 +33,7 @@ def sim(heure, prodPV, prodHydro, prodSolTh, consoChal, consoFroid, consoECS, co
     :return: bilanElec, consoElec, stock.temp
     """
     log.hour = heure # Utile pour le logging des infos
-
+    prodSolTh_gache = 0
 
 
     bilanElec = 0  # Le bilan est positif s'il y a une exportation d'électricité ou négatif en cas d'importation
@@ -42,7 +43,10 @@ def sim(heure, prodPV, prodHydro, prodSolTh, consoChal, consoFroid, consoECS, co
     prodElec -= consoElec
 
     # Chauffage du stock avec les PV
-    stock.entree(prodSolTh)
+    try:
+        stock.entree(prodSolTh)
+    except TemperatureTooHighError:
+        prodSolTh_gache = prodSolTh
 
     # Chauffage du bâtiment avec la PAC qui puisse dans le stock d'anérgie
     if stock.temp >= tempChauff:    # Si le stock est plus chaud que le température, pas besoin de la PAC
@@ -73,18 +77,28 @@ def sim(heure, prodPV, prodHydro, prodSolTh, consoChal, consoFroid, consoECS, co
             prodElec -= enPAC["elec"]
 
     copECS = pac.cop
+    # TODO Pertes dans conduites : 6.33kW
     # TODO Stockage électrique
+    if prodElec > 0:  # On stocke de l'électricité excédente dans les batteries
+        print("Je stocke")
+        prodElec -= battery.entree(prodElec)
+    else:
+        prodElec += battery.sortie(-prodElec)
+        print("Je déstocke")
+
     # Chauffage du stock depuis la nappe phréatique avec l'électricité restante
     if prodElec > 0:
         enPAC = pacNappe.pomperEnRestante(prodElec, tempChaud=stock.temp+20, tempFroid=tempNappe)
         try:
             stock.entree(enPAC["chaud"])
+            bilanElec = 0
         except TemperatureTooHighError:  # Si le stockage est trop chaud, exportation de l'électricité sur le réseau
             bilanElec = prodElec
+
     else:
         bilanElec = prodElec
 
-    return [heure, bilanElec, stock.energie, stock.temp, copChauff, copECS]
+    return [heure, bilanElec, stock.energie, stock.temp, copChauff, copECS, prodSolTh_gache]
 
 
 

@@ -66,7 +66,7 @@ class Mur:
 
 
 class StockageEau:
-    def __init__(self, hauteur, longueur, largeur, mur):
+    def __init__(self, hauteur, longueur, largeur, mur, temp_depart):
         self.mur = mur
         self.largeur = largeur
         self.longueur = longueur
@@ -79,7 +79,7 @@ class StockageEau:
 
         # Calcul de la capacité thermique
         self.tempMin = 14
-        self.temp = self.tempMin # Température de départ pour la simulation
+        self.temp = temp_depart  # Température de départ pour la simulation
         self.tempMax = 95
         deltaT = self.tempMax - self.tempMin
         self.capaciteCalorifique = 4180  # Capacité calorifique massique (J/kg·K)
@@ -169,3 +169,44 @@ class PAC:
         """
         cop = self.calculer_rendement(tempChaud=tempChaud, tempFroid=tempFroid)
         return {"chaud": energieElec*cop, "froid": energieElec*(cop-1)}
+
+class StockageElectrique:
+    def __init__(self, capacite):
+        self.capacite = capacite
+        self.stock_actuel = capacite
+
+    @property
+    def stock_disponible(self):
+        return self.capacite-self.stock_actuel
+
+    def entree(self, energie):
+        """
+        Injecte de l'électricité dans le stock
+        :param energie:
+        :return: L'énergie qui a finalement été utilisée pour charger la batterie.
+        """
+        energie /= 1.1 # Pertes du système
+        # Si il y a plus d'énergie que de place dans le système
+        if energie > self.stock_disponible:
+            stock_dispo = self.stock_disponible
+            self.stock_actuel += self.stock_disponible
+            return stock_dispo*1.1
+        else:
+            self.stock_actuel += energie
+            return energie*1.1
+
+    def sortie(self, energie):
+        """
+        Puise de l'électricité dans le stock
+        :param energie:
+        :return: L'énergie électrique sortie de la batterie utilisable
+        """
+        energie *= 1.1
+        # Si on a besoin de plus d'énergie que disponible
+        if energie > self.stock_actuel:
+            energie_stock = self.stock_actuel
+            self.stock_actuel = 0
+            return energie_stock/1.1
+        else:
+            self.stock_actuel -= energie
+            return energie/1.1
