@@ -9,7 +9,7 @@ beton = Materiau(nom="Béton", valeurLambda=2.4)  # écobati.com
 
 mur = Mur((isolant, 30), (beton, 20))
 battery = StockageElectrique(600)
-stock = StockageEau(5, 14, 15, mur, temp_depart=50)
+stock = StockageEau(10, 140, 15, mur, temp_depart=80)
 tempChauff = 35
 tempECS = 60
 pac = PAC(cop=5, puissance=140)

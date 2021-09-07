@@ -62,6 +62,8 @@ class Mur:
         for i in range(len(self.materiaux)):
             Rth += self.epaisseurs[i]/100 / self.materiaux[i].valeurLambda
 
+        print(self.materiaux)
+        print(self.epaisseurs)
         self.valeurU = 1/Rth
 
 
@@ -72,6 +74,8 @@ class StockageEau:
         self.longueur = longueur
         self.hauteur = hauteur
         self.volume = longueur*hauteur*largeur
+
+        self.surface = (largeur*hauteur + largeur*longueur + longueur*hauteur)*2
 
         # Calcul de la masse
         self.masseVolumique = 998  # kg/m³
@@ -105,13 +109,19 @@ class StockageEau:
         else:
             raise TemperatureTooLowError(f"La température {self.temp} est trop faible (TempMin : {self.tempMin})")
 
-    def pertes_horaires(self, tempExt):
+    def pertes_horaires(self, tempExt=10):
         """
         Calcul des pertes horaires en fonction de la température externe
         # TODO : ajouter les pertes horaires du système de stockage.
         :param tempExt:
         :return:
         """
+        val_lambda = 0.030
+        epaisseur = 0.3 #m
+        valeurU = val_lambda/epaisseur
+        deltaT = self.temp-tempExt
+        return valeurU*deltaT*self.surface/1000
+
     @property
     def energie(self):
         """

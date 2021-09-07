@@ -1,14 +1,14 @@
 #%%
 from lib import log
-from simulation import sim
+from sim2_simulation import sim
 import numpy as np
 import matplotlib.pyplot as plt
 #%%
-from csv_creator import csv_create
+from sim2_csv_creator import csv_create
 csv_create()
 #%%
 ## PARAMS
-numero_sim = 1
+numero_sim = 2
 log.sim_number= numero_sim
 path = f"data/sims/sim{numero_sim}"
 log.file_path = f"{path}/log.txt"
