@@ -8,7 +8,7 @@ sims:
 
     stockage_hydrogene: 15000
     stockage_hydrogene_depart: 12000
-    stockage_electrique: 250
+    stockage_electrique: 300
 
     puissance_pac: 200
 

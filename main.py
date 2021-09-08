@@ -47,18 +47,22 @@ np.savetxt(exportfile, comments="", fmt="%f", X=results, delimiter=";", newline=
 exportfile.close()
 fig, ax1 = plt.subplots(figsize=(8, 5))
 
-# ax2 = ax1.twinx()
+ax2 = ax1.twinx()
+ax3 = ax1.twinx()
+ax3.spines.right.set_position(("axes", 1.2))
+
+
 #
-# ax2.plot(results[:, 0], results[:, 4])  # cop de la PAC de chauffage
-#
+ax2.scatter(data[:, COLS_EQ["heure"]], data[:, COLS_EQ["consChal"]], color='red', s=0.1, alpha=0.3)  # cop de la PAC de chauffage
 # ax2.plot(results[:, 0], results[:, 5])  # cop de la PAC pour l'ECS
 #ax1.plot(results[:, 0], results[:, 2])  # bilan énergie
 ax1.scatter(results[:, 0], results[:, 1], linewidth=0.1, s=1.5)  # énergie dans le stock
 
-ax1.set_ylabel("Energie [kWh]")
-#ax2.set_ylabel("COP des PAC")
+ax1.set_ylabel("Energie électrique [kWh]")
+ax2.set_ylabel("Energie Thermique [kWh]")
 ax1.set_xlabel("Heures de l'année")
-fig.legend(["Bilan énergie", "Energie stockée"])
+ax3.plot(results[:,8], color="green")
+fig.legend(["Bilan énergie", "Consommation de chaleur", "Stockage d'hydrogène"])
 plt.show()
 
 plt.scatter(results[:, 0], results[:, 3],  s=1)
@@ -80,6 +84,14 @@ plt.title("Batterie hydrogène")
 plt.ylim(bottom=0, top=config["stockage_hydrogene"]+1000)
 
 plt.show()
+#plt.hist( results[:,7])
+plt.scatter(results[:,0], results[:,7], s=1.5)
+
+plt.title("Batterie électrique")
+#plt.ylim(bottom=0, top=config["stockage_electrique"]+100)
+
+plt.show()
+
 from simulation import pac, hydropack
 print("Puissance PAC", pac.puissance, " kW")
 print("Energie consommée par la PAX : ", pac.elecTot, " kWh")
