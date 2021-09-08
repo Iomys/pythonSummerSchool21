@@ -3,13 +3,13 @@ Simulation heure par heure prenant en compte la production et la consommation d'
 
 """
 from lib import *
-cop_froid = 64  # cf. calcul Emmanuel
+cop_froid = 45  # cf. calcul Emmanuel
 isolant = Materiau(nom="Un isolant", valeurLambda=0.030)
 beton = Materiau(nom="Béton", valeurLambda=2.4)  # écobati.com
 
 mur = Mur((isolant, 30), (beton, 20))
 battery = StockageElectrique(600)
-stock = StockageEau(10, 140, 15, mur, temp_depart=80)
+stock = StockageEau(10, 70, 30, mur, temp_depart=80)
 tempChauff = 35
 tempECS = 60
 pac = PAC(cop=5, puissance=140)

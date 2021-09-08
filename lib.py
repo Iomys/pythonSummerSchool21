@@ -10,11 +10,12 @@ class Logger:
     hour = 0
     file_path = ""
 
-    def print(self, title ,message) :
+    def print(self, title, message) :
         with open(self.file_path, 'a') as file :
             file.write(f"{self.sim_number} | {self.hour} | {title} : {message}")
 
 log = Logger()
+
 class Batiment:
     """
     Classe de bâtiment basique (pavé)
@@ -41,7 +42,6 @@ class Materiau:
         self.nom = nom
         self.valeurLambda = valeurLambda
         self.capaciteCalorifique = capaciteCalorifique
-
 
 class Mur:
     """
@@ -136,7 +136,7 @@ class PAC:
         self.puissance = puissance
         self.cop = cop
         self.carnotFactor = carnotFactor  # Chiffre à diviser pour obtenir le rendement de Carnot
-
+    elecTot = 0
     def calculer_rendement(self, tempChaud, tempFroid):
         """
 
@@ -166,6 +166,8 @@ class PAC:
         #  Source : https://fr.wikipedia.org/wiki/Coefficient_de_performance
         demandeFroid = (1-1/cop) * demandeEnergie  # Demande en énergie de la source froide
         demandeElec = 1/cop * demandeEnergie
+        self.puissance = max(self.puissance, demandeElec)
+        self.elecTot += demandeElec
         return {"froid": demandeFroid, "elec": demandeElec}  # Demande en énergie électrique
 
     def pomperEnRestante(self, energieElec, tempFroid, tempChaud):
@@ -177,10 +179,16 @@ class PAC:
         :param tempFroid: Température de la source froide
         :return: Dictionnaire avec la chaleur produire ("chaud") et l'énergie prélevée à la source froide ("froid")
         """
+        self.elecTot += energieElec
+        self.puissance = max(self.puissance, energieElec)
         cop = self.calculer_rendement(tempChaud=tempChaud, tempFroid=tempFroid)
         return {"chaud": energieElec*cop, "froid": energieElec*(cop-1)}
 
 class StockageElectrique:
+
+    rendement_entree = 0.9
+    rendement_sortie = 0.9
+
     def __init__(self, capacite):
         self.capacite = capacite
         self.stock_actuel = capacite
@@ -195,15 +203,15 @@ class StockageElectrique:
         :param energie:
         :return: L'énergie qui a finalement été utilisée pour charger la batterie.
         """
-        energie /= 1.1 # Pertes du système
+        energie *= self.rendement_entree # Pertes du système
         # Si il y a plus d'énergie que de place dans le système
         if energie > self.stock_disponible:
             stock_dispo = self.stock_disponible
             self.stock_actuel += self.stock_disponible
-            return stock_dispo*1.1
+            return stock_dispo/self.rendement_entree
         else:
             self.stock_actuel += energie
-            return energie*1.1
+            return energie/self.rendement_entree
 
     def sortie(self, energie):
         """
@@ -211,12 +219,21 @@ class StockageElectrique:
         :param energie:
         :return: L'énergie électrique sortie de la batterie utilisable
         """
-        energie *= 1.1
+        energie /= self.rendement_sortie
         # Si on a besoin de plus d'énergie que disponible
         if energie > self.stock_actuel:
             energie_stock = self.stock_actuel
             self.stock_actuel = 0
-            return energie_stock/1.1
+            return energie_stock * self.rendement_sortie
         else:
             self.stock_actuel -= energie
-            return energie/1.1
+            return energie * self.rendement_sortie
+
+
+class StockageHydrogene(StockageElectrique):
+    rendement_entree = 0.6*0.4
+    rendement_sortie = 1
+
+    def __init__(self, capacite, stock_depart):
+        self.capacite = capacite
+        self.stock_actuel = stock_depart

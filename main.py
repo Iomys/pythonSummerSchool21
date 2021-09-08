@@ -3,12 +3,15 @@ from lib import log
 from simulation import sim
 import numpy as np
 import matplotlib.pyplot as plt
+from settings.config import config, numero_sim
+
 #%%
 from csv_creator import csv_create
 csv_create()
 #%%
 ## PARAMS
-numero_sim = 1
+
+
 log.sim_number= numero_sim
 path = f"data/sims/sim{numero_sim}"
 log.file_path = f"{path}/log.txt"
@@ -28,7 +31,7 @@ COLS_EQ = {
     "consFroid": 6,
     "consElec": 7,
 }
-results = np.empty((len(data), 7))
+results = np.empty((len(data), 9))
 for line in data:
     #sim_results = sim(heure=1, prodPV=0, prodHydro=0, prodSolTh=100, consoChal=0,
     #              consoFroid=0, consoECS=0, consoElec=0)
@@ -72,3 +75,12 @@ bilan_energy = results[:, 1]
 print("Energie importée : ", np.sum(bilan_energy[bilan_energy<0]))
 print("Energie exportée : ", np.sum(bilan_energy[bilan_energy>0]))
 print("Energie thermique gâchée : ", np.sum(results[:,6]))
+plt.plot(results[:,8])
+plt.title("Batterie hydrogène")
+plt.ylim(bottom=0, top=config["stockage_hydrogene"]+1000)
+
+plt.show()
+from simulation import pac, hydropack
+print("Puissance PAC", pac.puissance, " kW")
+print("Energie consommée par la PAX : ", pac.elecTot, " kWh")
+print("Charge restante Hydrogène : ", hydropack.stock_actuel, " kWh")
