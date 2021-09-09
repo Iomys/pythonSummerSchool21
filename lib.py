@@ -112,7 +112,6 @@ class StockageEau:
     def pertes_horaires(self, tempExt=10):
         """
         Calcul des pertes horaires en fonction de la température externe
-        # TODO : ajouter les pertes horaires du système de stockage.
         :param tempExt:
         :return:
         """

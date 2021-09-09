@@ -31,7 +31,7 @@ COLS_EQ = {
     "consFroid": 6,
     "consElec": 7,
 }
-results = np.empty((len(data), 9))
+results = np.empty((8760, 11))
 for line in data:
     #sim_results = sim(heure=1, prodPV=0, prodHydro=0, prodSolTh=100, consoChal=0,
     #              consoFroid=0, consoECS=0, consoElec=0)
@@ -43,7 +43,7 @@ for line in data:
     results[int(line[0])-1] = sim_results
 
 exportfile = open(f"{path}/results.csv", "w")
-np.savetxt(exportfile, comments="", fmt="%f", X=results, delimiter=";", newline="\n", header="Heure; Bilan [kWh]; Stockage [kWh]; Température du stock [°C]; COP chauffage; COP ECS; ECS Gachée")
+np.savetxt(exportfile, comments="", fmt="%f", X=results, delimiter=";", newline="\n", header="Heure;Bilan [kWh];Stockage eau [kWh];Température du stock [°C];COP chauffage;COP ECS;ECS Gachée [kWh];Stock batterie [kWh];Stockage hydrogene [kWh];consElecPac;pertes_horaires")
 exportfile.close()
 fig, ax1 = plt.subplots(figsize=(8, 5))
 
@@ -62,7 +62,7 @@ ax1.set_ylabel("Energie électrique [kWh]")
 ax2.set_ylabel("Energie Thermique [kWh]")
 ax1.set_xlabel("Heures de l'année")
 ax3.plot(results[:,8], color="green")
-fig.legend(["Bilan énergie", "Consommation de chaleur", "Stockage d'hydrogène"])
+fig.legend(["Bilan énergie", "Consommation de chaleur", "Stockage d'hydrogène", "consElecPac", "pertes_horaires"])
 plt.show()
 
 plt.scatter(results[:, 0], results[:, 3],  s=1)
@@ -96,3 +96,4 @@ from simulation import pac, hydropack
 print("Puissance PAC", pac.puissance, " kW")
 print("Energie consommée par la PAX : ", pac.elecTot, " kWh")
 print("Charge restante Hydrogène : ", hydropack.stock_actuel, " kWh")
+print(results[8759, 3])

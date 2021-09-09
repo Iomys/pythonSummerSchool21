@@ -35,6 +35,7 @@ def sim(heure, prodPV, prodHydro, prodSolTh, consoChal, consoFroid, consoECS, co
     :param consoECS: Consommation en eau chaude sanitaire
     :return: bilanElec, consoElec, stock.temp
     """
+    consElecPac = 0
     log.hour = heure # Utile pour le logging des infos
     prodSolTh_gache = 0
 
@@ -49,8 +50,8 @@ def sim(heure, prodPV, prodHydro, prodSolTh, consoChal, consoFroid, consoECS, co
     consoChal += pertes_tuyaux
 
     # Pertes horaires du stockage
-
-    consoChal += stock.pertes_horaires()
+    pertes_horaires = stock.pertes_horaires()
+    consoChal += pertes_horaires
 
     # Chauffage du stock avec les PV
     try:
@@ -69,6 +70,7 @@ def sim(heure, prodPV, prodHydro, prodSolTh, consoChal, consoFroid, consoECS, co
             print("Température trop faible pour chauffer le chauffage")
         finally:
             prodElec -= enPAC["elec"]
+            consElecPac += enPAC["elec"]
     copChauff = pac.cop
     # Refroidissement avec la nappe phréatique
     prodElec -= consoFroid / cop_froid  # Seulement l'énergie de la pompe de circulation
@@ -85,6 +87,7 @@ def sim(heure, prodPV, prodHydro, prodSolTh, consoChal, consoFroid, consoECS, co
             print("Température du stock trop faible pour chauffer l'ECS")
         else:
             prodElec -= enPAC["elec"]
+            consElecPac += enPAC["elec"]
 
     copECS = pac.cop
 
@@ -115,7 +118,7 @@ def sim(heure, prodPV, prodHydro, prodSolTh, consoChal, consoFroid, consoECS, co
         bilanElec = prodElec
 
 
-    return [heure, bilanElec, stock.energie, stock.temp, copChauff, copECS, prodSolTh_gache, battery.stock_actuel, hydropack.stock_actuel]
+    return [heure, bilanElec, stock.energie, stock.temp, copChauff, copECS, prodSolTh_gache, battery.stock_actuel, hydropack.stock_actuel, consElecPac, pertes_horaires]
 
 
 

@@ -1,14 +1,15 @@
 ---
 numero_sim: 1
 sims:
+  # Année type normale
   1 :
     sol_pv_percentage: 1000
     sol_th_percentage: 2400
 
 
-    stockage_hydrogene: 15000
+    stockage_hydrogene: 20000
     stockage_hydrogene_depart: 12000
-    stockage_electrique: 300
+    stockage_electrique: 250
 
     puissance_pac: 200
 
@@ -16,17 +17,40 @@ sims:
       longueur: 70
       largeur: 15
       hauteur: 5
-      temp_depart: 50
+      temp_depart: 64
 
-    sol_th_incl : "90" # 20 / 40 / 60
-    sol_pv_incl : 0  # index à prendre (0 : 10°, 1: 90°)
-  2:
+
+    sol_th_incl : "60" # 20 / 40 / 60
+    sol_pv_incl : 1  # index à prendre (0 : 10°, 1: 90°)
+
+  # Année avec production solaire très faible (80%)
+  2 :
+    sol_pv_percentage: 850
+    sol_th_percentage: 2040
+
+
+    stockage_hydrogene: 20000
+    stockage_hydrogene_depart: 12000
+    stockage_electrique: 250
+
+    puissance_pac: 200
+
+    stockage_eau:
+      longueur: 70
+      largeur: 15
+      hauteur: 5
+      temp_depart: 64
+
+    sol_th_incl : "60" # 20 / 40 / 60
+    sol_pv_incl : 1  # index à prendre (0 : 10°, 1: 90°)
+  # Année suivant la production solaire très faible (80%)
+  3 :
     sol_pv_percentage: 1000
     sol_th_percentage: 2400
 
 
-    stockage_hydrogene: 15000
-    stockage_hydrogene_depart: 12000
+    stockage_hydrogene: 20000
+    stockage_hydrogene_depart: 10000
     stockage_electrique: 250
 
     puissance_pac: 200
@@ -37,6 +61,5 @@ sims:
       hauteur: 5
       temp_depart: 50
 
-    sol_th_incl : "90" # 20 / 40 / 60
-    sol_pv_incl : 0  # index à prendre (0 : 10°, 1: 90°)
-
+    sol_th_incl : "60" # 20 / 40 / 60
+    sol_pv_incl : 1  # index à prendre (0 : 10°, 1: 90°)
